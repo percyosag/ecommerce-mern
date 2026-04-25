@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+import productRoutes from "./routes/productRoutes.js";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -13,6 +14,9 @@ const port = process.env.PORT || 5000;
 
 // Initialize the Express application
 const app = express();
+
+// Use the product routes
+app.use("/api/products", productRoutes);
 
 // A simple test route
 app.get("/", (req, res) => {

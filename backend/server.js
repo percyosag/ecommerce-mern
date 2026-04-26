@@ -5,6 +5,7 @@ import productRoutes from "./routes/productRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -27,12 +28,17 @@ app.use(cookieParser());
 
 // Mount the routes
 app.use("/api/products", productRoutes);
-app.use("/api/users", userRoutes); // <-- Mount user routes
+app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
 
 // A simple test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
+app.get("/api/config/paypal", (req, res) =>
+  res.send({ clientId: process.env.PAYPAL_CLIENT_ID }),
+);
 
 app.use(notFound);
 app.use(errorHandler);

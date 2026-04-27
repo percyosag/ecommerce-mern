@@ -3,15 +3,22 @@ import { apiSlice } from "./apiSlice";
 
 export const productsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // This creates a custom Hook we can use in our components!
     getProducts: builder.query({
       query: () => ({
         url: PRODUCTS_URL,
       }),
-      keepUnusedDataFor: 5, // Caches the data for 5 seconds
+      keepUnusedDataFor: 5,
+    }),
+
+    getProductDetails: builder.query({
+      query: (productId) => ({
+        url: `${PRODUCTS_URL}/${productId}`,
+      }),
+      keepUnusedDataFor: 5,
     }),
   }),
 });
 
-// RTK Query automatically generates a hook based on the name of the endpoint
-export const { useGetProductsQuery } = productsApiSlice;
+// Add the new hook to the export list:
+export const { useGetProductsQuery, useGetProductDetailsQuery } =
+  productsApiSlice;

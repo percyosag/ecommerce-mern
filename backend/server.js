@@ -6,6 +6,8 @@ import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import path from "path";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -30,6 +32,7 @@ app.use(cookieParser());
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // A simple test route
 app.get("/", (req, res) => {
@@ -39,6 +42,10 @@ app.get("/", (req, res) => {
 app.get("/api/config/paypal", (req, res) =>
   res.send({ clientId: process.env.PAYPAL_CLIENT_ID }),
 );
+
+// 4. Make the uploads folder static so the frontend can read the images
+const __dirname = path.resolve(); // Resolves the current directory for ES Modules
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use(notFound);
 app.use(errorHandler);

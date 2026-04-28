@@ -88,21 +88,43 @@ const ProductScreen = () => {
 
                 {product.countInStock > 0 && (
                   <ListGroup.Item className="bg-dark text-light border-secondary">
-                    <Row>
+                    <Row className="align-items-center">
                       <Col>Qty</Col>
                       <Col>
-                        <Form.Control
-                          as="select"
-                          value={qty}
-                          onChange={(e) => setQty(Number(e.target.value))}
-                          className="form-select bg-secondary text-white border-0"
-                        >
-                          {[...Array(product.countInStock).keys()].map((x) => (
-                            <option key={x + 1} value={x + 1}>
-                              {x + 1}
-                            </option>
-                          ))}
-                        </Form.Control>
+                        {product.countInStock > 10 ? (
+                          /* Numeric Input for High Stock (11+) */
+                          <Form.Control
+                            type="number"
+                            value={qty}
+                            min={1}
+                            max={product.countInStock}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              // Validation to prevent ordering more than stock or less than 1
+                              if (val > product.countInStock)
+                                setQty(product.countInStock);
+                              else if (val < 1) setQty(1);
+                              else setQty(val);
+                            }}
+                            className="bg-secondary text-white border-0"
+                          />
+                        ) : (
+                          /* Standard Dropdown for Low Stock (1-10) */
+                          <Form.Control
+                            as="select"
+                            value={qty}
+                            onChange={(e) => setQty(Number(e.target.value))}
+                            className="form-select bg-secondary text-white border-0"
+                          >
+                            {[...Array(product.countInStock).keys()].map(
+                              (x) => (
+                                <option key={x + 1} value={x + 1}>
+                                  {x + 1}
+                                </option>
+                              ),
+                            )}
+                          </Form.Control>
+                        )}
                       </Col>
                     </Row>
                   </ListGroup.Item>

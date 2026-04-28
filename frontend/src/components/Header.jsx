@@ -1,33 +1,33 @@
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav, Container, Badge } from "react-bootstrap";
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { LinkContainer } from "react-router-bootstrap";
+import { useSelector } from "react-redux";
 
 const Header = () => {
+  const { cartItems } = useSelector((state) => state.cart);
+
   return (
     <header>
-      <Navbar
-        bg="dark"
-        variant="dark"
-        expand="md"
-        collapseOnSelect
-        className="border-bottom border-secondary"
-      >
+      <Navbar bg="dark" variant="dark" expand="md" collapseOnSelect>
         <Container>
           <LinkContainer to="/">
-            <Navbar.Brand className="fw-bold" style={{ letterSpacing: "1px" }}>
-              <span className="text-primary">Apex</span>Commerce
-            </Navbar.Brand>
+            <Navbar.Brand>ApexCommerce</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <LinkContainer to="/cart">
-                <Nav.Link className="d-flex align-items-center gap-2">
+                <Nav.Link>
                   <FaShoppingCart /> Cart
+                  {cartItems.length > 0 && (
+                    <Badge pill bg="primary" style={{ marginLeft: "5px" }}>
+                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                    </Badge>
+                  )}
                 </Nav.Link>
               </LinkContainer>
               <LinkContainer to="/login">
-                <Nav.Link className="d-flex align-items-center gap-2">
+                <Nav.Link>
                   <FaUser /> Sign In
                 </Nav.Link>
               </LinkContainer>
@@ -38,5 +38,4 @@ const Header = () => {
     </header>
   );
 };
-
 export default Header;

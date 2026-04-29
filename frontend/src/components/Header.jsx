@@ -1,10 +1,29 @@
-import { Navbar, Nav, Container, Badge } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Navbar, Nav, Container, Badge, NavDropdown } from "react-bootstrap"; // Added NavDropdown
 import { FaShoppingCart, FaUser } from "react-icons/fa";
 import { LinkContainer } from "react-router-bootstrap";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // Added useDispatch
+import { useLogoutMutation } from "../slices/usersApiSlice";
+import { logout } from "../slices/authSlice";
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth); // Grab user info
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [logoutApiCall] = useLogoutMutation();
+
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap(); // Tells backend to clear the cookie
+      dispatch(logout()); // Clears Redux and LocalStorage
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <header>
@@ -26,11 +45,24 @@ const Header = () => {
                   )}
                 </Nav.Link>
               </LinkContainer>
-              <LinkContainer to="/login">
-                <Nav.Link>
-                  <FaUser /> Sign In
-                </Nav.Link>
-              </LinkContainer>
+
+              {/* DYNAMIC AUTH SECTION */}
+              {userInfo ? (
+                <NavDropdown title={userInfo.name} id="username">
+                  <LinkContainer to="/profile">
+                    <NavDropdown.Item>Profile</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item onClick={logoutHandler}>
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              ) : (
+                <LinkContainer to="/login">
+                  <Nav.Link>
+                    <FaUser /> Sign In
+                  </Nav.Link>
+                </LinkContainer>
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -38,4 +70,5 @@ const Header = () => {
     </header>
   );
 };
+
 export default Header;

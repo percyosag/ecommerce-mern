@@ -5,12 +5,13 @@ import { useSelector } from "react-redux";
 import Message from "../components/Message";
 import Loader from "../components/Loader";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { toast } from "react-toastify";
 import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
+  useCreatePaypalOrderMutation,
 } from "../slices/ordersApiSlice";
-import { toast } from "react-toastify";
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
@@ -23,6 +24,7 @@ const OrderScreen = () => {
   } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const [createPaypalOrder] = useCreatePaypalOrderMutation();
   const { userInfo } = useSelector((state) => state.auth);
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const {
@@ -52,45 +54,90 @@ const OrderScreen = () => {
     }
   }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
 
-  const handleSuccess = async (details) => {
+  // const handleSuccess = async (details) => {
+  //   try {
+  //     await payOrder({ orderId, details }).unwrap();
+  //     await refetch();
+  //     toast.success("Order is paid");
+  //   } catch (err) {
+  //     toast.error(err?.data?.message || err.error || "Payment failed");
+  //   }
+  // };
+
+  async function onApprove(data) {
     try {
-      await payOrder({ orderId, details });
-      refetch(); // Instantly updates the UI!
+      console.log("Approved PayPal order:", data.orderID);
+
+      await payOrder({
+        orderId,
+        details: {
+          orderID: data.orderID,
+        },
+      }).unwrap();
+
+      await refetch();
       toast.success("Order is paid");
     } catch (err) {
-      toast.error(err?.data?.message || err.error);
+      console.error("PayPal approval error:", err);
+      toast.error(err?.data?.message || err.error || "Payment failed");
     }
-  };
-  // function onApprove(data, actions) {
-  //   return actions.order.capture().then(async function (details) {
-  //     try {
-  //       await payOrder({ orderId, details });
-  //       refetch(); // This turns the red box green!
-  //       toast.success("Payment successful");
-  //     } catch (err) {
-  //       toast.error(err?.data?.message || err.error);
-  //     }
-  //   });
-  // }
-
-  function onApprove(data, actions) {
-    return actions.order.capture().then(function (details) {
-      handleSuccess(details);
-    });
   }
 
   function onError(err) {
     toast.error(err.message);
   }
 
-  function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [{ amount: { value: order.totalPrice.toFixed(2) } }],
-      })
-      .then((orderID) => {
-        return orderID;
-      });
+  // function createOrder(data, actions) {
+  //   return actions.order
+  //     .create({
+  //       purchase_units: [{ amount: { value: order.totalPrice.toFixed(2) } }],
+  //     })
+  //     .then((orderID) => {
+  //       return orderID;
+  //     });
+  // }
+
+  // async function createOrder() {
+  //   try {
+  //     console.log("Creating PayPal order for Mongo order:", orderId);
+
+  //     const res = await createPaypalOrder(orderId).unwrap();
+
+  //     console.log("PayPal order created:", res);
+
+  //     return res.id;
+  //   } catch (err) {
+  //     console.error("Create PayPal order failed:", err);
+  //     toast.error(
+  //       err?.data?.message || err.error || "Could not create PayPal order",
+  //     );
+  //   }
+  // }
+
+  async function createOrder() {
+    try {
+      console.log("Creating PayPal order for Mongo order:", orderId);
+
+      const res = await createPaypalOrder(orderId).unwrap();
+
+      console.log("PayPal order created:", res);
+
+      if (!res.id) {
+        throw new Error("Backend did not return a PayPal order id");
+      }
+
+      return res.id;
+    } catch (err) {
+      console.error("Create PayPal order failed:", err);
+      toast.error(
+        err?.data?.message ||
+          err.error ||
+          err.message ||
+          "Could not create PayPal order",
+      );
+
+      throw err;
+    }
   }
   return isLoading ? (
     <Loader />
@@ -198,10 +245,17 @@ const OrderScreen = () => {
                   ) : (
                     <div>
                       <PayPalButtons
+                        fundingSource="paypal"
+                        style={{
+                          layout: "vertical",
+                          color: "gold",
+                          shape: "rect",
+                          label: "paypal",
+                        }}
                         createOrder={createOrder}
                         onApprove={onApprove}
                         onError={onError}
-                      ></PayPalButtons>
+                      />
                     </div>
                   )}
                 </ListGroup.Item>

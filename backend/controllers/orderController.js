@@ -2,7 +2,7 @@ import asyncHandler from "../middleware/asyncHandler.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { calcPrices } from "../utils/calcPrices.js";
-import { verifyPayPalPayment, checkIfNewTransaction } from "../utils/paypal.js";
+import { createPayPalOrder, capturePayPalOrder } from "../utils/paypal.js";
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -145,19 +145,41 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
   }
 });
 
+const createPayPalOrderForOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  if (order.isPaid) {
+    res.status(400);
+    throw new Error("Order is already paid");
+  }
+
+  const paypalOrder = await createPayPalOrder(order);
+
+  res.json({
+    id: paypalOrder.id,
+  });
+});
+
+// @desc    Update order to paid
+// @route   PUT /api/orders/:id/pay
+// @access  Private
 // const updateOrderToPaid = asyncHandler(async (req, res) => {
 //   const order = await Order.findById(req.params.id);
 
 //   if (order) {
-//     // We are trusting the frontend for this test
-//     // (We will re-add security once we know it works)
+//     // FORCE SUCCESS HERE - Bypass all PayPal logic
 //     order.isPaid = true;
 //     order.paidAt = Date.now();
 //     order.paymentResult = {
-//       id: req.body.id,
-//       status: req.body.status,
-//       update_time: req.body.update_time,
-//       email_address: req.body.payer.email_address,
+//       id: "BYPASS_SUCCESS_" + req.params.id,
+//       status: "COMPLETED",
+//       update_time: new Date().toISOString(),
+//       email_address: req.user.email,
 //     };
 
 //     const updatedOrder = await order.save();
@@ -168,30 +190,58 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
 //   }
 // });
 
-// @desc    Update order to paid
-// @route   PUT /api/orders/:id/pay
-// @access  Private
 const updateOrderToPaid = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
-  if (order) {
-    // FORCE SUCCESS HERE - Bypass all PayPal logic
-    order.isPaid = true;
-    order.paidAt = Date.now();
-    order.paymentResult = {
-      id: "BYPASS_SUCCESS_" + req.params.id,
-      status: "COMPLETED",
-      update_time: new Date().toISOString(),
-      email_address: req.user.email,
-    };
-
-    const updatedOrder = await order.save();
-    res.json(updatedOrder);
-  } else {
+  if (!order) {
     res.status(404);
     throw new Error("Order not found");
   }
+
+  if (order.isPaid) {
+    res.status(400);
+    throw new Error("Order is already paid");
+  }
+
+  const paypalOrderId = req.body.orderID;
+
+  if (!paypalOrderId) {
+    res.status(400);
+    throw new Error("PayPal order ID is missing");
+  }
+
+  const captureData = await capturePayPalOrder(paypalOrderId);
+
+  if (captureData.status !== "COMPLETED") {
+    res.status(400);
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const paidAmount =
+    captureData.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value;
+
+  if (Number(paidAmount).toFixed(2) !== Number(order.totalPrice).toFixed(2)) {
+    res.status(400);
+    throw new Error("Paid amount does not match order total");
+  }
+
+  const capture = captureData.purchase_units?.[0]?.payments?.captures?.[0];
+
+  order.isPaid = true;
+  order.paidAt = Date.now();
+
+  order.paymentResult = {
+    id: capture?.id || paypalOrderId,
+    status: captureData.status,
+    update_time: capture?.update_time,
+    email_address: captureData.payer?.email_address,
+  };
+
+  const updatedOrder = await order.save();
+
+  res.json(updatedOrder);
 });
+
 export {
   addOrderItems,
   getMyOrders,
@@ -199,4 +249,5 @@ export {
   getOrders,
   updateOrderToPaid,
   updateOrderToDelivered,
+  createPayPalOrderForOrder,
 };

@@ -11,34 +11,41 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       }),
     }),
 
-    getOrderDetails: builder.query({
-      query: (id) => ({
-        url: `${ORDERS_URL}/${id}`,
-      }),
-      providesTags: ["Order"],
-    }),
-    payOrder: builder.mutation({
-      query: ({ orderId, details }) => ({
-        url: `${ORDERS_URL}/${orderId}/pay`,
-        method: "PUT",
-        body: details,
-      }),
-      invalidatesTags: ["Order"],
-    }),
-
     // getOrderDetails: builder.query({
     //   query: (id) => ({
     //     url: `${ORDERS_URL}/${id}`,
     //   }),
-    //   keepUnusedDataFor: 5,
+    //   providesTags: ["Order"],
     // }),
     // payOrder: builder.mutation({
     //   query: ({ orderId, details }) => ({
     //     url: `${ORDERS_URL}/${orderId}/pay`,
     //     method: "PUT",
-    //     body: { ...details },
+    //     body: details,
     //   }),
+    //   invalidatesTags: ["Order"],
     // }),
+
+    getOrderDetails: builder.query({
+      query: (id) => ({
+        url: `${ORDERS_URL}/${id}`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    payOrder: builder.mutation({
+      query: ({ orderId, details }) => ({
+        url: `${ORDERS_URL}/${orderId}/pay`,
+        method: "PUT",
+        body: { ...details },
+      }),
+    }),
+
+    createPaypalOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/paypal`,
+        method: "POST",
+      }),
+    }),
 
     deliverOrder: builder.mutation({
       query: (id) => ({
@@ -61,4 +68,5 @@ export const {
   useGetPaypalClientIdQuery,
   usePayOrderMutation,
   useDeliverOrderMutation,
+  useCreatePaypalOrderMutation,
 } = ordersApiSlice;

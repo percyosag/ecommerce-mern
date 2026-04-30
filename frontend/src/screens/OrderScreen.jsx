@@ -11,6 +11,7 @@ import {
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
   useCreatePaypalOrderMutation,
+  useDeliverOrderMutation,
 } from "../slices/ordersApiSlice";
 
 const OrderScreen = () => {
@@ -25,6 +26,8 @@ const OrderScreen = () => {
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
   const [createPaypalOrder] = useCreatePaypalOrderMutation();
+  const [deliverOrder, { isLoading: loadingDeliver }] =
+    useDeliverOrderMutation();
   const { userInfo } = useSelector((state) => state.auth);
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
   const {
@@ -54,16 +57,6 @@ const OrderScreen = () => {
     }
   }, [order, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
 
-  // const handleSuccess = async (details) => {
-  //   try {
-  //     await payOrder({ orderId, details }).unwrap();
-  //     await refetch();
-  //     toast.success("Order is paid");
-  //   } catch (err) {
-  //     toast.error(err?.data?.message || err.error || "Payment failed");
-  //   }
-  // };
-
   async function onApprove(data) {
     try {
       console.log("Approved PayPal order:", data.orderID);
@@ -86,34 +79,6 @@ const OrderScreen = () => {
   function onError(err) {
     toast.error(err.message);
   }
-
-  // function createOrder(data, actions) {
-  //   return actions.order
-  //     .create({
-  //       purchase_units: [{ amount: { value: order.totalPrice.toFixed(2) } }],
-  //     })
-  //     .then((orderID) => {
-  //       return orderID;
-  //     });
-  // }
-
-  // async function createOrder() {
-  //   try {
-  //     console.log("Creating PayPal order for Mongo order:", orderId);
-
-  //     const res = await createPaypalOrder(orderId).unwrap();
-
-  //     console.log("PayPal order created:", res);
-
-  //     return res.id;
-  //   } catch (err) {
-  //     console.error("Create PayPal order failed:", err);
-  //     toast.error(
-  //       err?.data?.message || err.error || "Could not create PayPal order",
-  //     );
-  //   }
-  // }
-
   async function createOrder() {
     try {
       console.log("Creating PayPal order for Mongo order:", orderId);
@@ -139,6 +104,19 @@ const OrderScreen = () => {
       throw err;
     }
   }
+
+  async function deliverHandler() {
+    try {
+      await deliverOrder(orderId).unwrap();
+      await refetch();
+      toast.success("Order marked as delivered");
+    } catch (err) {
+      toast.error(
+        err?.data?.message || err.error || "Could not mark order as delivered",
+      );
+    }
+  }
+
   return isLoading ? (
     <Loader />
   ) : error ? (
@@ -260,6 +238,8 @@ const OrderScreen = () => {
                   )}
                 </ListGroup.Item>
               )}
+              {loadingDeliver && <Loader />}
+
               {userInfo &&
                 userInfo.isAdmin &&
                 order.isPaid &&
@@ -268,7 +248,7 @@ const OrderScreen = () => {
                     <Button
                       type="button"
                       className="btn btn-block"
-                      onClick={() => console.log("Delivered!")} // Temporary handler
+                      onClick={deliverHandler}
                     >
                       Mark As Delivered
                     </Button>

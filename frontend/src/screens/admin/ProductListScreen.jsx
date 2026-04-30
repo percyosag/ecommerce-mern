@@ -7,6 +7,7 @@ import Message from "../../components/Message";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
+  useCreateProductMutation,
 } from "../../slices/productsApiSlice";
 import { toast } from "react-toastify";
 
@@ -15,6 +16,8 @@ function ProductListScreen() {
 
   const [deleteProduct, { isLoading: loadingDelete }] =
     useDeleteProductMutation();
+  const [createProduct, { isLoading: loadingCreate }] =
+    useCreateProductMutation();
 
   async function deleteHandler(productId) {
     if (!window.confirm("Are you sure you want to delete this product?")) {
@@ -31,6 +34,21 @@ function ProductListScreen() {
       );
     }
   }
+
+  async function createProductHandler() {
+    if (!window.confirm("Are you sure you want to create a new product?")) {
+      return;
+    }
+
+    try {
+      await createProduct().unwrap();
+      await refetch();
+    } catch (err) {
+      toast.error(
+        err?.data?.message || err.error || "Could not create product",
+      );
+    }
+  }
   return (
     <>
       <Row className="align-items-center">
@@ -39,10 +57,13 @@ function ProductListScreen() {
         </Col>
 
         <Col className="text-end">
-          <Button className="btn-sm my-3">Create Product</Button>
+          <Button className="btn-sm my-3" onClick={createProductHandler}>
+            Create Product
+          </Button>
         </Col>
       </Row>
       {loadingDelete && <Loader />}
+      {loadingCreate && <Loader />}
       {isLoading ? (
         <Loader />
       ) : error ? (

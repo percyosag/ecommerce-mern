@@ -46,16 +46,25 @@ const Header = () => {
                 </Nav.Link>
               </LinkContainer>
 
-              {/* DYNAMIC AUTH SECTION */}
               {userInfo ? (
-                <NavDropdown title={userInfo.name} id="username">
-                  <LinkContainer to="/profile">
-                    <NavDropdown.Item>Profile</NavDropdown.Item>
-                  </LinkContainer>
-                  <NavDropdown.Item onClick={logoutHandler}>
-                    Logout
-                  </NavDropdown.Item>
-                </NavDropdown>
+                <>
+                  {userInfo.isAdmin && (
+                    <NavDropdown title="Admin" id="adminmenu">
+                      <LinkContainer to="/admin/orderlist">
+                        <NavDropdown.Item>Orders</NavDropdown.Item>
+                      </LinkContainer>
+                    </NavDropdown>
+                  )}
+
+                  <NavDropdown title={userInfo.name} id="username">
+                    <LinkContainer to="/profile">
+                      <NavDropdown.Item>Profile</NavDropdown.Item>
+                    </LinkContainer>
+                    <NavDropdown.Item onClick={logoutHandler}>
+                      Logout
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                </>
               ) : (
                 <LinkContainer to="/login">
                   <Nav.Link>

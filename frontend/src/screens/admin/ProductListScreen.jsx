@@ -4,11 +4,33 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
-import { useGetProductsQuery } from "../../slices/productsApiSlice";
+import {
+  useGetProductsQuery,
+  useDeleteProductMutation,
+} from "../../slices/productsApiSlice";
+import { toast } from "react-toastify";
 
 function ProductListScreen() {
-  const { data: products, isLoading, error } = useGetProductsQuery();
+  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
 
+  const [deleteProduct, { isLoading: loadingDelete }] =
+    useDeleteProductMutation();
+
+  async function deleteHandler(productId) {
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
+    try {
+      await deleteProduct(productId).unwrap();
+      await refetch();
+      toast.success("Product deleted successfully");
+    } catch (err) {
+      toast.error(
+        err?.data?.message || err.error || "Could not delete product",
+      );
+    }
+  }
   return (
     <>
       <Row className="align-items-center">
@@ -20,7 +42,7 @@ function ProductListScreen() {
           <Button className="btn-sm my-3">Create Product</Button>
         </Col>
       </Row>
-
+      {loadingDelete && <Loader />}
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -55,7 +77,11 @@ function ProductListScreen() {
                     </Button>
                   </LinkContainer>
 
-                  <Button variant="danger" className="btn-sm" disabled>
+                  <Button
+                    variant="danger"
+                    className="btn-sm"
+                    onClick={() => deleteHandler(product._id)}
+                  >
                     <FaTrash />
                   </Button>
                 </td>

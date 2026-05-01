@@ -30,13 +30,21 @@ export const productsApiSlice = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
+
+    updateProduct: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}`,
+        method: "PUT",
+        body: data,
+      }),
+    }),
   }),
 });
 
-// Add the new hook to the export list:
 export const {
   useGetProductsQuery,
   useGetProductDetailsQuery,
   useDeleteProductMutation,
   useCreateProductMutation,
+  useUpdateProductMutation,
 } = productsApiSlice;

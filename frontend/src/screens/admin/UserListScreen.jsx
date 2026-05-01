@@ -4,15 +4,33 @@ import { FaCheck, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
-import { useGetUsersQuery } from "../../slices/usersApiSlice";
+import {
+  useGetUsersQuery,
+  useDeleteUserMutation,
+} from "../../slices/usersApiSlice";
+import { toast } from "react-toastify";
 
 function UserListScreen() {
-  const { data: users, isLoading, error } = useGetUsersQuery();
+  const { data: users, isLoading, error, refetch } = useGetUsersQuery();
 
+  const [deleteUser, { isLoading: loadingDelete }] = useDeleteUserMutation();
+  async function deleteHandler(userId) {
+    if (!window.confirm("Are you sure you want to delete this user?")) {
+      return;
+    }
+
+    try {
+      await deleteUser(userId).unwrap();
+      await refetch();
+      toast.success("User deleted successfully");
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || "Could not delete user");
+    }
+  }
   return (
     <>
       <h1>Users</h1>
-
+      {loadingDelete && <Loader />}
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -53,7 +71,12 @@ function UserListScreen() {
                     </Button>
                   </LinkContainer>
 
-                  <Button variant="danger" className="btn-sm" disabled>
+                  <Button
+                    variant="danger"
+                    className="btn-sm"
+                    onClick={() => deleteHandler(user._id)}
+                    disabled={user.isAdmin}
+                  >
                     <FaTrash />
                   </Button>
                 </td>

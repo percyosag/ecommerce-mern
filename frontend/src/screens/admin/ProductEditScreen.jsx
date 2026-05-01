@@ -8,6 +8,7 @@ import FormContainer from "../../components/FormContainer";
 import {
   useGetProductDetailsQuery,
   useUpdateProductMutation,
+  useUploadProductImageMutation,
 } from "../../slices/productsApiSlice";
 
 function ProductEditScreen() {
@@ -24,6 +25,8 @@ function ProductEditScreen() {
 
   const [updateProduct, { isLoading: loadingUpdate }] =
     useUpdateProductMutation();
+  const [uploadProductImage, { isLoading: loadingUpload }] =
+    useUploadProductImageMutation();
 
   const currentFormData = formData || {
     name: product?.name || "",
@@ -34,6 +37,30 @@ function ProductEditScreen() {
     countInStock: product?.countInStock || "",
     description: product?.description || "",
   };
+
+  async function uploadFileHandler(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await uploadProductImage(formData).unwrap();
+
+      setFormData({
+        ...currentFormData,
+        image: res.image,
+      });
+
+      toast.success(res.message || "Image uploaded successfully");
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || "Image upload failed");
+    }
+  }
 
   function changeHandler(event) {
     const { name, value } = event.target;
@@ -106,7 +133,6 @@ function ProductEditScreen() {
                 onChange={changeHandler}
               />
             </Form.Group>
-
             <Form.Group controlId="image" className="my-2">
               <Form.Label>Image</Form.Label>
               <Form.Control
@@ -116,6 +142,13 @@ function ProductEditScreen() {
                 value={currentFormData.image}
                 onChange={changeHandler}
               />
+              <Form.Control
+                type="file"
+                label="Choose File"
+                onChange={uploadFileHandler}
+                className="mt-2"
+              />
+              {loadingUpload && <Loader />}
             </Form.Group>
 
             <Form.Group controlId="brand" className="my-2">

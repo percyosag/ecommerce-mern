@@ -33,7 +33,7 @@ const protect = asyncHandler(async (req, res, next) => {
 // Gatekeeper 2: User must be an admin
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
-    next(); // They are an admin, let them through
+    next();
   } else {
     res.status(401);
     throw new Error("Not authorized as an admin");

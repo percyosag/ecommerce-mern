@@ -10,9 +10,15 @@ import {
   useCreateProductMutation,
 } from "../../slices/productsApiSlice";
 import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
+import Paginate from "../../components/Paginate";
 
 function ProductListScreen() {
-  const { data: products, isLoading, error, refetch } = useGetProductsQuery();
+  const { pageNumber } = useParams();
+  const navigate = useNavigate();
+  const { data, isLoading, error, refetch } = useGetProductsQuery({
+    pageNumber,
+  });
 
   const [deleteProduct, { isLoading: loadingDelete }] =
     useDeleteProductMutation();
@@ -41,8 +47,9 @@ function ProductListScreen() {
     }
 
     try {
-      await createProduct().unwrap();
-      await refetch();
+      const createdProduct = await createProduct().unwrap();
+      toast.success("Product created successfully");
+      navigate(`/admin/product/${createdProduct._id}/edit`);
     } catch (err) {
       toast.error(
         err?.data?.message || err.error || "Could not create product",
@@ -84,7 +91,7 @@ function ProductListScreen() {
           </thead>
 
           <tbody>
-            {products.map((product) => (
+            {data?.products.map((product) => (
               <tr key={product._id}>
                 <td>{product._id}</td>
                 <td>{product.name}</td>
@@ -111,6 +118,7 @@ function ProductListScreen() {
           </tbody>
         </Table>
       )}
+      {data && <Paginate pages={data.pages} page={data.page} isAdmin={true} />}
     </>
   );
 }

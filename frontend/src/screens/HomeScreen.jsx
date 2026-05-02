@@ -3,10 +3,14 @@ import Product from "../components/Product";
 
 import { useGetProductsQuery } from "../slices/productsApiSlice";
 import { useParams } from "react-router-dom";
+import Paginate from "../components/Paginate";
 
 const HomeScreen = () => {
-  const { keyword } = useParams();
-  const { data: products, isLoading, error } = useGetProductsQuery({ keyword });
+  const { keyword, pageNumber } = useParams();
+  const { data, isLoading, error } = useGetProductsQuery({
+    keyword,
+    pageNumber,
+  });
   return (
     <>
       <h1 className="mt-4 mb-3 text-center">LATEST PRODUCTS</h1>
@@ -17,12 +21,16 @@ const HomeScreen = () => {
         <div>{error?.data?.message || error.error}</div>
       ) : (
         <Row className="justify-content-center gy-4">
-          {products.map((product) => (
+          {data.products.map((product) => (
             <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
               <Product product={product} />
             </Col>
           ))}
         </Row>
+      )}
+
+      {data && (
+        <Paginate pages={data.pages} page={data.page} keyword={keyword || ""} />
       )}
     </>
   );

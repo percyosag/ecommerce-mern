@@ -4,6 +4,7 @@ import Product from "../components/Product";
 import { useGetProductsQuery } from "../slices/productsApiSlice";
 import { useParams } from "react-router-dom";
 import Paginate from "../components/Paginate";
+import ProductCarousel from "../components/ProductCarousel";
 
 const HomeScreen = () => {
   const { keyword, pageNumber } = useParams();
@@ -11,8 +12,10 @@ const HomeScreen = () => {
     keyword,
     pageNumber,
   });
+
   return (
     <>
+      {!keyword && <ProductCarousel />}
       <h1 className="mt-4 mb-3 text-center">LATEST PRODUCTS</h1>
 
       {isLoading ? (

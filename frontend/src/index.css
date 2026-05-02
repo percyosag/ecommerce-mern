@@ -46,63 +46,107 @@ main {
 /* Product Carousel */
 .carousel {
   margin-bottom: 2rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1f2630 0%, #121212 100%);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
 .carousel-item {
-  background-color: #1f2630;
-  min-height: 320px;
+  min-height: 360px;
 }
 
 .carousel-link {
   display: block;
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
 }
 
 .carousel-slide {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  min-height: 320px;
-  padding: 2rem 4rem;
+  gap: 2.5rem;
+  min-height: 360px;
+  padding: 2rem 4.5rem;
 }
 
 .carousel-image-wrapper {
-  flex: 1;
+  flex: 1.15;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .carousel-image {
-  max-height: 240px;
+  max-height: 300px;
+  width: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.35));
 }
 
 .carousel-text {
-  flex: 1;
+  flex: 0.85;
   color: #ffffff;
   text-align: left;
 }
 
+.carousel-eyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: #00d4ff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .carousel-text h2 {
-  font-size: 1.8rem;
+  font-size: 1.45rem;
+  line-height: 1.25;
   margin-bottom: 0.75rem;
 }
 
 .carousel-text p {
-  font-size: 1.25rem;
-  margin: 0;
-  color: #00d4ff;
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+  color: #e0e0e0;
   font-weight: 600;
+}
+
+.carousel-cta {
+  display: inline-block;
+  background-color: #00d4ff;
+  color: #121212;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.carousel-link:hover .carousel-cta {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 212, 255, 0.25);
 }
 
 /* Mobile */
 @media (max-width: 768px) {
+  .carousel-item {
+    min-height: 420px;
+  }
+
   .carousel-slide {
     flex-direction: column;
-    text-align: center;
+    gap: 1.25rem;
+    min-height: 420px;
     padding: 2rem 1.5rem;
+  }
+
+  .carousel-image {
+    max-height: 230px;
   }
 
   .carousel-text {
@@ -110,10 +154,10 @@ main {
   }
 
   .carousel-text h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .carousel-text p {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }

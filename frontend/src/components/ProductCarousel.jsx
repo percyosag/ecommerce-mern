@@ -28,8 +28,10 @@ function ProductCarousel() {
               </div>
 
               <div className="carousel-text">
+                <span className="carousel-eyebrow">Top Rated</span>
                 <h2>{product.name}</h2>
                 <p>${Number(product.price).toFixed(2)}</p>
+                <span className="carousel-cta">Shop Now</span>
               </div>
             </div>
           </Link>

@@ -2,9 +2,11 @@ import { Row, Col } from "react-bootstrap";
 import Product from "../components/Product";
 
 import { useGetProductsQuery } from "../slices/productsApiSlice";
+import { useParams } from "react-router-dom";
 
 const HomeScreen = () => {
-  const { data: products, isLoading, error } = useGetProductsQuery();
+  const { keyword } = useParams();
+  const { data: products, isLoading, error } = useGetProductsQuery({ keyword });
   return (
     <>
       <h1 className="mt-4 mb-3 text-center">LATEST PRODUCTS</h1>

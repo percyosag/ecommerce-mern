@@ -59,8 +59,6 @@ const OrderScreen = () => {
 
   async function onApprove(data) {
     try {
-      console.log("Approved PayPal order:", data.orderID);
-
       await payOrder({
         orderId,
         details: {
@@ -71,7 +69,6 @@ const OrderScreen = () => {
       await refetch();
       toast.success("Order is paid");
     } catch (err) {
-      console.error("PayPal approval error:", err);
       toast.error(err?.data?.message || err.error || "Payment failed");
     }
   }
@@ -81,11 +78,7 @@ const OrderScreen = () => {
   }
   async function createOrder() {
     try {
-      console.log("Creating PayPal order for Mongo order:", orderId);
-
       const res = await createPaypalOrder(orderId).unwrap();
-
-      console.log("PayPal order created:", res);
 
       if (!res.id) {
         throw new Error("Backend did not return a PayPal order id");
@@ -93,7 +86,6 @@ const OrderScreen = () => {
 
       return res.id;
     } catch (err) {
-      console.error("Create PayPal order failed:", err);
       toast.error(
         err?.data?.message ||
           err.error ||

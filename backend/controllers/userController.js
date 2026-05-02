@@ -130,9 +130,6 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
-// ... existing functions like authUser, logoutUser, etc.
-
-// 1. Ensure the function is defined
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 

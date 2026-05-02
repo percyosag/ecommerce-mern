@@ -1,5 +1,6 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import Product from "../models/productModel.js";
+import Order from "../models/orderModel.js";
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -85,16 +86,37 @@ const updateProduct = asyncHandler(async (req, res) => {
   const { name, price, description, image, brand, category, countInStock } =
     req.body;
 
+  if (
+    !name?.trim() ||
+    !description?.trim() ||
+    !image?.trim() ||
+    !brand?.trim() ||
+    !category?.trim()
+  ) {
+    res.status(400);
+    throw new Error("All product text fields are required");
+  }
+
+  if (Number.isNaN(Number(price)) || Number(price) < 0) {
+    res.status(400);
+    throw new Error("Product price must be a valid non-negative number");
+  }
+
+  if (!Number.isInteger(Number(countInStock)) || Number(countInStock) < 0) {
+    res.status(400);
+    throw new Error("Count in stock must be a valid non-negative whole number");
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    product.name = name;
-    product.price = price;
-    product.description = description;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
-    product.countInStock = countInStock;
+    product.name = name.trim();
+    product.price = Number(price);
+    product.description = description.trim();
+    product.image = image.trim();
+    product.brand = brand.trim();
+    product.category = category.trim();
+    product.countInStock = Number(countInStock);
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
@@ -127,6 +149,17 @@ const createProductReview = asyncHandler(async (req, res) => {
   const { rating, comment } = req.body;
 
   const product = await Product.findById(req.params.id);
+
+  const hasPurchasedProduct = await Order.findOne({
+    user: req.user._id,
+    isPaid: true,
+    "orderItems.product": req.params.id,
+  });
+
+  if (!hasPurchasedProduct) {
+    res.status(400);
+    throw new Error("You can only review products you have purchased");
+  }
 
   if (product) {
     // 1. Check for Duplicate Reviews

@@ -151,6 +151,40 @@ The application was tested manually through the following flows:
 - Admin user edit/delete workflow
 - Frontend linting with ESLint
 
+## Screenshots
+
+### Home Page
+
+![ApexCommerce home page showing luxury perfume products](docs/screenshots/01-home-page.png)
+
+### Product Details
+
+![ApexCommerce product details page for a luxury perfume item](docs/screenshots/02-product-details.png)
+
+### Cart Page
+
+![ApexCommerce cart page with selected perfume product](docs/screenshots/03-cart-page.png)
+
+### Checkout Flow
+
+![ApexCommerce checkout flow](docs/screenshots/04-checkout-flow.png)
+
+### Order Summary
+
+![ApexCommerce order summary page](docs/screenshots/05-order-summary.png)
+
+### Admin Product Management
+
+![ApexCommerce admin products page](docs/screenshots/06-admin-products.png)
+
+### Admin Order Management
+
+![ApexCommerce admin orders page](docs/screenshots/07-admin-orders.png)
+
+### PayPal Sandbox Payment
+
+![ApexCommerce PayPal sandbox payment integration](docs/screenshots/08-paypal-sandbox.png)
+
 ## Author
 
 Percy Osunde

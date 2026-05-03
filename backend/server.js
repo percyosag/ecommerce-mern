@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import path from "path";
+import cors from "cors";
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -17,9 +18,20 @@ dotenv.config();
 connectDB();
 
 const port = process.env.PORT || 5000;
+// Define allowed origins for CORS
+const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URL];
 
 // Initialize the Express application
 const app = express();
+
+// CORS configuration
+
+app.use(
+  cors({
+    origin: allowedOrigins.filter(Boolean),
+    credentials: true,
+  }),
+);
 
 // Body parser middleware (Allows us to read req.body)
 app.use(express.json());

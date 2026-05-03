@@ -20,7 +20,6 @@ const protect = asyncHandler(async (req, res, next) => {
 
       next(); // Pass the request to the next piece of middleware or the controller
     } catch (error) {
-      console.error(error);
       res.status(401);
       throw new Error("Not authorized, token failed");
     }

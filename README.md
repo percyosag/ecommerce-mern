@@ -185,6 +185,10 @@ The application was tested manually through the following flows:
 
 ![ApexCommerce PayPal sandbox payment integration](docs/screenshots/08-paypal-sandbox.png)
 
+### SonarQube Cloud Quality Analysis
+
+![ApexCommerce SonarQube Cloud quality analysis dashboard](docs/screenshots/10-sonarqube-dashboard.png)
+
 ## Author
 
 Percy Osunde

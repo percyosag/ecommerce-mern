@@ -4,6 +4,13 @@ ApexCommerce is a full-stack MERN ecommerce application built with React, Node.j
 
 The project follows a modern ecommerce workflow and extends it with cleaner backend validation, server-side PayPal capture, admin management features, milestone-based development, and SonarQube-friendly cleanup.
 
+## Live Demo
+
+Note: The backend is hosted on Render’s free tier, so the first request may take a few seconds to wake up.
+
+- Frontend: https://apex-commerce-mern.vercel.app
+- Backend API: https://apexcommerce-api.onrender.com/api/products
+
 ## Features
 
 ### Customer Features
@@ -184,6 +191,10 @@ The application was tested manually through the following flows:
 ### PayPal Sandbox Payment
 
 ![ApexCommerce PayPal sandbox payment integration](docs/screenshots/08-paypal-sandbox.png)
+
+### PayPal-Paid Sandbox Payment
+
+![ApexCommerce completed PayPal Sandbox payment confirmation](docs/screenshots/09-paid-paypal-sandbox.png)
 
 ### SonarQube Cloud Quality Analysis
 
